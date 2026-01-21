@@ -148,11 +148,11 @@ class SchedulerService {
     const emailRepository = AppDataSource.getMongoRepository(Email);
 
     const [total, scheduled, sent, failed, pending] = await Promise.all([
-      emailRepository.count({ where: { userId } }),
-      emailRepository.count({ where: { userId, status: EmailStatus.SCHEDULED } }),
-      emailRepository.count({ where: { userId, status: EmailStatus.SENT } }),
-      emailRepository.count({ where: { userId, status: EmailStatus.FAILED } }),
-      emailRepository.count({ where: { userId, status: EmailStatus.PENDING } }),
+      emailRepository.countBy({ userId }),
+      emailRepository.countBy({ userId, status: EmailStatus.SCHEDULED }),
+      emailRepository.countBy({ userId, status: EmailStatus.SENT }),
+      emailRepository.countBy({ userId, status: EmailStatus.FAILED }),
+      emailRepository.countBy({ userId, status: EmailStatus.PENDING }),
     ]);
 
     return { total, scheduled, sent, failed, pending };

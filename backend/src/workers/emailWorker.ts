@@ -8,10 +8,27 @@ import logger from '../config/logger';
 import Redis from 'ioredis';
 import dotenv from 'dotenv';
 import { ObjectId } from 'mongodb';
+import 'reflect-metadata';
 
 dotenv.config();
 
 const WORKER_CONCURRENCY = parseInt(process.env.WORKER_CONCURRENCY || '5');
+
+// Initialize database connection
+const initializeDatabase = async () => {
+  try {
+    if (!AppDataSource.isInitialized) {
+      await AppDataSource.initialize();
+      logger.info('✅ Worker database connected successfully');
+    }
+  } catch (error) {
+    logger.error('Failed to initialize worker database:', error);
+    process.exit(1);
+  }
+};
+
+// Initialize database before starting worker
+initializeDatabase();
 
 // Create connection - BullMQ needs an ioredis instance for TLS
 const redisConnection = process.env.REDIS_URL
@@ -72,11 +89,16 @@ export const emailWorker = new Worker<EmailJobData>(
         { $set: { status: EmailStatus.SENT, sentAt: new Date() } }
       );
 
-      logger.info(`Email sent successfully to ${recipientEmail}`, {
+      logger.info(`✅ Email sent successfully to ${recipientEmail}`, {
         jobId: job.id,
         emailId,
         messageId: result.messageId,
+        previewUrl: result.previewUrl,
       });
+      
+      if (result.previewUrl) {
+        logger.info(`📧 View email at: ${result.previewUrl}`);
+      }
 
       return { success: true, messageId: result.messageId };
     } catch (error: any) {
@@ -123,12 +145,20 @@ emailWorker.on('error', (error) => {
 process.on('SIGTERM', async () => {
   logger.info('SIGTERM received. Closing worker gracefully...');
   await emailWorker.close();
+  if (AppDataSource.isInitialized) {
+    await AppDataSource.destroy();
+  }
+  await redisConnection.quit();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
   logger.info('SIGINT received. Closing worker gracefully...');
   await emailWorker.close();
+  if (AppDataSource.isInitialized) {
+    await AppDataSource.destroy();
+  }
+  await redisConnection.quit();
   process.exit(0);
 });
 

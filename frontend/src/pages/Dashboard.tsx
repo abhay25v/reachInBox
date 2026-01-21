@@ -6,6 +6,7 @@ import StatsCards from '../components/StatsCards';
 import ComposeEmail from '../components/ComposeEmail';
 import EmailsTable from '../components/EmailsTable';
 import Header from '../components/Header';
+import InfoBanner from '../components/InfoBanner';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -42,9 +43,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     fetchData();
-    // Refresh every 30 seconds - disabled during development
-    // const interval = setInterval(fetchData, 30000);
-    // return () => clearInterval(interval);
+    // Auto-refresh disabled - use manual refresh button instead
   }, []);
 
   const handleEmailScheduled = () => {
@@ -65,14 +64,39 @@ const Dashboard: React.FC = () => {
       <Header />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Welcome, {user?.name}
-          </h1>
-          <p className="mt-1 text-sm text-gray-600">
-            Manage and schedule your email campaigns
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Welcome, {user?.name}
+            </h1>
+            <p className="mt-1 text-sm text-gray-600">
+              Manage and schedule your email campaigns
+            </p>
+          </div>
+          <button
+            onClick={fetchData}
+            disabled={loading}
+            className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            <svg
+              className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            Refresh
+          </button>
         </div>
+
+        <InfoBanner />
 
         {stats && <StatsCards stats={stats} />}
 
