@@ -1,306 +1,308 @@
-# Email Scheduler - Production-Grade Full-Stack Application
+# 📧 Email Scheduler Pro
 
-A robust email scheduling system with intelligent rate limiting, built with TypeScript, React, BullMQ, Redis, and PostgreSQL.
+A production-grade full-stack email scheduling system with intelligent rate limiting, bulk sending capabilities, and real-time tracking. Built with TypeScript, Express, MongoDB, Redis, BullMQ, React, and Tailwind CSS.
 
-## 🚀 Features
+![Email Scheduler Pro](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+
+## ✨ Features
+
+### 🚀 Core Functionality
+- **Smart Email Scheduling**: Schedule emails with custom delays and start times
+- **Bulk CSV Upload**: Upload recipient lists via CSV files for mass campaigns
+- **Rate Limiting**: Intelligent hourly rate limiting with automatic rescheduling
+- **Job Persistence**: All jobs persist across server restarts using Redis
+- **No Duplicates**: Idempotent job processing ensures no duplicate sends
+- **Real-time Tracking**: Monitor scheduled, sent, and failed emails in real-time
+
+### 🎨 User Experience
+- **Modern UI**: Professional gradient-based design with smooth animations
+- **Google OAuth**: Secure authentication via Google OAuth 2.0
+- **Responsive Dashboard**: Mobile-friendly interface with real-time stats
+- **Manual Refresh**: Control when to update dashboard statistics
+
+### 🛠️ Technical Features
+- **TypeScript**: Full type safety across frontend and backend
+- **MongoDB**: NoSQL database for flexible email tracking
+- **Redis + BullMQ**: Distributed job queue with retry logic
+- **Session Management**: Redis-backed sessions for scalability
+- **Logging**: Winston-powered structured logging
+- **SMTP Integration**: Supports any SMTP provider (Gmail, SendGrid, etc.)
+
+---
+
+## 🛠️ Tech Stack
 
 ### Backend
-- **Email Scheduling**: Schedule emails with custom delays and start times
-- **Rate Limiting**: Redis-backed hourly rate limiting with automatic rescheduling
-- **Queue Management**: BullMQ for reliable job processing and persistence
-- **Authentication**: Google OAuth 2.0 integration
-- **Database**: PostgreSQL with TypeORM for data persistence
-- **Worker System**: Separate worker process for email sending
-- **CSV Support**: Bulk email upload via CSV
-- **Monitoring**: Winston logger for comprehensive logging
-- **Idempotent**: Prevents duplicate sends on server restart
+- **Node.js** + **Express.js** - REST API server
+- **TypeScript** - Type-safe development
+- **MongoDB** + **TypeORM** - Database and ORM
+- **Redis** + **BullMQ** - Job queue and session store
+- **Passport.js** - Google OAuth authentication
+- **Nodemailer** - Email sending
+- **Winston** - Logging
 
 ### Frontend
-- **Modern UI**: React + TypeScript + Tailwind CSS
-- **Authentication**: Google OAuth login flow
-- **Dashboard**: Real-time statistics and email tracking
-- **Compose**: Email composition with CSV upload
-- **Tables**: Scheduled and sent emails with status tracking
-- **Responsive**: Mobile-friendly design
+- **React 18** - UI library
+- **TypeScript** - Type safety
+- **Vite** - Build tool
+- **Tailwind CSS** - Styling
+- **Axios** - HTTP client
+- **React Router** - Navigation
+
+---
+
+## 📦 Prerequisites
+
+- **Node.js** (v18+) - [Download](https://nodejs.org/)
+- **npm** or **yarn**
+- **Git**
+
+Required services:
+1. **MongoDB Atlas** - [Sign up](https://www.mongodb.com/cloud/atlas/register)
+2. **Upstash Redis** - [Sign up](https://upstash.com/)
+3. **Google Cloud Console** - [Console](https://console.cloud.google.com/)
+4. **Gmail** or **Ethereal Email**
+
+---
+
+## 🚀 Quick Start
+
+### 1. Clone & Install
+
+```bash
+git clone https://github.com/yourusername/email-scheduler.git
+cd email-scheduler
+
+# Install backend
+cd backend && npm install
+
+# Install frontend
+cd ../frontend && npm install
+```
+
+### 2. Configure Environment
+
+**Backend** (`backend/.env`):
+```env
+PORT=5000
+FRONTEND_URL=http://localhost:3000
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/email_scheduler
+REDIS_URL=rediss://default:password@host:port
+SESSION_SECRET=your-secret-key
+GOOGLE_CLIENT_ID=your-client-id
+GOOGLE_CLIENT_SECRET=your-client-secret
+GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+```
+
+**Frontend** (`frontend/.env`):
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+### 3. Run Application
+
+```bash
+# Terminal 1: Backend
+cd backend && npm run dev
+
+# Terminal 2: Worker
+cd backend && npm run worker
+
+# Terminal 3: Frontend
+cd frontend && npm run dev
+```
+
+Visit http://localhost:3000
+
+---
+
+## 📡 API Documentation
+
+### Authentication
+
+#### Login
+```http
+GET /api/auth/google
+```
+
+#### Get Current User
+```http
+GET /api/auth/me
+```
+
+### Emails
+
+#### Schedule Emails
+```http
+POST /api/emails/schedule
+Content-Type: application/json
+
+{
+  "subject": "Subject",
+  "body": "Content",
+  "recipients": ["email@example.com"],
+  "startTime": "2026-01-22T10:00:00Z",
+  "delayBetweenEmails": 5000,
+  "hourlyLimit": 50
+}
+```
+
+#### Get Emails
+```http
+GET /api/emails?status=SCHEDULED&limit=50
+```
+
+#### Get Stats
+```http
+GET /api/emails/stats
+```
+
+---
+
+## 🔧 Detailed Setup
+
+### MongoDB Atlas
+
+1. Create cluster at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+2. Create database user
+3. Whitelist IP: `0.0.0.0/0` (development)
+4. Get connection string
+5. Replace `<password>` and add `/email_scheduler`
+
+### Upstash Redis
+
+1. Create database at [Upstash](https://upstash.com/)
+2. Copy connection URL (use `rediss://` protocol)
+
+### Google OAuth
+
+1. [Google Cloud Console](https://console.cloud.google.com/)
+2. Create project → Enable Google+ API
+3. Credentials → OAuth 2.0 Client ID
+4. Authorized redirect: `http://localhost:5000/api/auth/google/callback`
+5. Copy Client ID & Secret
+
+### Gmail SMTP
+
+1. Enable 2-Step Verification
+2. [App Passwords](https://myaccount.google.com/apppasswords)
+3. Generate password for "Mail"
+4. Use 16-character password in `SMTP_PASS`
+
+**For Testing** - Use [Ethereal Email](https://ethereal.email/create)
+
+---
 
 ## 📁 Project Structure
 
 ```
-reachInBox/
+email-scheduler/
 ├── backend/
 │   ├── src/
-│   │   ├── config/          # Database, Redis, Logger, Passport
-│   │   ├── models/          # TypeORM entities (User, Email)
-│   │   ├── services/        # Business logic (Scheduler, RateLimiter, Email)
-│   │   ├── queues/          # BullMQ queue setup
-│   │   ├── workers/         # BullMQ worker implementation
+│   │   ├── config/          # Database, Redis, Passport
+│   │   ├── models/          # User, Email entities
+│   │   ├── services/        # Business logic
+│   │   ├── queues/          # BullMQ queues
+│   │   ├── workers/         # Job processors
 │   │   ├── controllers/     # Route handlers
-│   │   ├── routes/          # Express routes
-│   │   ├── middleware/      # Auth, validation, error handling
-│   │   ├── types/           # TypeScript interfaces
-│   │   └── server.ts        # Express app
-│   ├── package.json
-│   └── tsconfig.json
+│   │   ├── routes/          # API routes
+│   │   └── server.ts        # Entry point
+│   └── .env
 │
-└── frontend/
-    ├── src/
-    │   ├── api/             # API client
-    │   ├── components/      # React components
-    │   ├── context/         # Auth context
-    │   ├── pages/           # Login, Dashboard
-    │   ├── types/           # TypeScript types
-    │   └── main.tsx         # Entry point
-    ├── package.json
-    └── vite.config.ts
+├── frontend/
+│   ├── src/
+│   │   ├── api/             # Axios client
+│   │   ├── components/      # React components
+│   │   ├── pages/           # Login, Dashboard
+│   │   ├── context/         # Auth context
+│   │   └── main.tsx
+│   └── .env
+│
+└── README.md
 ```
 
-## 🛠️ Prerequisites
+---
 
-- Node.js 18+
-- PostgreSQL 14+
-- Redis 7+
-- Google OAuth credentials
-- Ethereal Email account (or SMTP server)
+## 🐛 Troubleshooting
 
-## 📦 Installation
+**MongoDB connection fails**
+- Verify IP whitelist
+- Check URL encoding of password
 
-### 1. Backend Setup
+**Redis connection fails**
+- Use `rediss://` (double 's')
+- Verify credentials
 
+**OAuth not working**
+- Match redirect URI exactly
+- Check callback URL in `.env`
+
+**Emails not sending**
+- Gmail: Use App Password
+- Check SMTP credentials
+- View logs for errors
+
+**Dashboard not updating**
+- Click manual "Refresh" button
+- Check browser console
+- Verify backend is running
+
+---
+
+## 📊 Rate Limiting
+
+- Default: 50 emails/hour per user
+- Automatic rescheduling when limit reached
+- Redis-backed with 1-hour TTL
+- Configurable via `DEFAULT_HOURLY_LIMIT`
+
+---
+
+## 🚀 Deployment
+
+### Heroku (Backend)
 ```bash
-cd backend
-npm install
+heroku create
+heroku config:set NODE_ENV=production
+heroku config:set MONGODB_URI=...
+git push heroku main
+heroku ps:scale worker=1
 ```
 
-Create `.env` file:
-```bash
-cp .env.example .env
-```
-
-Configure environment variables in `.env`:
-```env
-# Database
-DB_HOST=localhost
-DB_PORT=5432
-DB_USERNAME=postgres
-DB_PASSWORD=your_password
-DB_DATABASE=email_scheduler
-
-# Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
-
-# Email (Ethereal - Get credentials from https://ethereal.email)
-SMTP_HOST=smtp.ethereal.email
-SMTP_PORT=587
-SMTP_USER=your_ethereal_user
-SMTP_PASS=your_ethereal_pass
-
-# Google OAuth (Get from https://console.cloud.google.com)
-GOOGLE_CLIENT_ID=your_client_id
-GOOGLE_CLIENT_SECRET=your_client_secret
-GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
-
-# Session
-SESSION_SECRET=your_random_secret_key
-
-# Rate Limiting
-EMAIL_HOURLY_LIMIT=100
-EMAIL_MIN_DELAY_MS=1000
-WORKER_CONCURRENCY=5
-```
-
-### 2. Frontend Setup
-
+### Vercel (Frontend)
 ```bash
 cd frontend
-npm install
+vercel
+# Set VITE_API_URL in dashboard
 ```
 
-Create `.env` file:
-```bash
-cp .env.example .env
-```
+---
 
-## 🚀 Running the Application
+## 🔒 Security
 
-### Development Mode
+- Never commit `.env` files
+- Use strong `SESSION_SECRET`
+- Enable HTTPS in production
+- Rotate credentials regularly
+- Use App Passwords for Gmail
 
-**Terminal 1 - Backend API:**
-```bash
-cd backend
-npm run dev
-```
-
-**Terminal 2 - Worker:**
-```bash
-cd backend
-npm run worker
-```
-
-**Terminal 3 - Frontend:**
-```bash
-cd frontend
-npm run dev
-```
-
-### Production Mode
-
-**Backend:**
-```bash
-cd backend
-npm run build
-npm start              # API server
-npm run worker:prod    # Worker (separate process)
-```
-
-**Frontend:**
-```bash
-cd frontend
-npm run build
-npm run preview
-```
-
-## 📡 API Endpoints
-
-### Authentication
-- `GET /api/auth/google` - Initiate Google OAuth
-- `GET /api/auth/google/callback` - OAuth callback
-- `GET /api/auth/me` - Get current user
-- `POST /api/auth/logout` - Logout
-
-### Email Management
-- `POST /api/emails/schedule` - Schedule emails
-- `GET /api/emails` - Get emails (with filters)
-- `GET /api/emails/stats` - Get statistics
-- `DELETE /api/emails/batch/:batchId` - Cancel batch
-
-### Upload
-- `POST /api/upload/csv` - Upload CSV file
-
-## 🎯 How It Works
-
-### Rate Limiting
-1. Each user has an hourly rate limit (configurable)
-2. Redis stores the count per user per hour
-3. If limit exceeded, jobs are automatically rescheduled to next hour
-4. No emails are dropped - they're just delayed
-
-### Job Persistence
-1. BullMQ stores jobs in Redis
-2. Workers can restart without losing jobs
-3. Email IDs are used as job IDs for idempotency
-4. Database tracks email status (SCHEDULED, SENT, FAILED)
-
-### Worker Architecture
-1. Separate worker process for reliability
-2. Configurable concurrency (default: 5)
-3. Automatic retry with exponential backoff
-4. Graceful shutdown handling
-
-### Email Scheduling Flow
-1. User submits email batch via API
-2. Each email is saved to PostgreSQL
-3. BullMQ job created with delay
-4. Worker processes job at scheduled time
-5. Rate limiter checks hourly quota
-6. If quota available: send email
-7. If quota exceeded: reschedule to next hour
-8. Database updated with result
-
-## 🔧 Configuration
-
-### Rate Limiting
-Adjust in `.env`:
-```env
-EMAIL_HOURLY_LIMIT=100      # Max emails per hour
-EMAIL_MIN_DELAY_MS=1000     # Min delay between emails
-WORKER_CONCURRENCY=5        # Concurrent workers
-```
-
-### Database Migration
-```bash
-cd backend
-npm run migration:generate -- -n MigrationName
-npm run migration:run
-```
-
-## 📊 Monitoring
-
-Logs are stored in `backend/logs/`:
-- `error.log` - Error messages only
-- `combined.log` - All log levels
-
-## 🔒 Security Features
-
-- Helmet.js for HTTP headers
-- CORS configuration
-- Session management with Redis
-- Rate limiting on API endpoints
-- Input validation with Joi
-- SQL injection protection (TypeORM)
-
-## 🧪 Testing Emails
-
-Use [Ethereal Email](https://ethereal.email) for development:
-1. Create free account
-2. Use credentials in `.env`
-3. View sent emails in Ethereal inbox
-
-## 📝 CSV Format
-
-CSV file should have email column:
-```csv
-email
-john@example.com
-jane@example.com
-bob@example.com
-```
-
-## 🚨 Troubleshooting
-
-**Database connection failed:**
-- Ensure PostgreSQL is running
-- Check credentials in `.env`
-
-**Redis connection failed:**
-- Ensure Redis is running: `redis-server`
-- Check Redis port in `.env`
-
-**Worker not processing jobs:**
-- Check worker is running
-- Check Redis connection
-- View logs in `backend/logs/`
-
-**OAuth not working:**
-- Verify Google OAuth credentials
-- Check callback URL matches Google Console
-- Ensure frontend URL in CORS config
-
-## 📚 Tech Stack
-
-**Backend:**
-- TypeScript
-- Express.js
-- PostgreSQL + TypeORM
-- Redis + BullMQ
-- Nodemailer (Ethereal)
-- Passport.js (Google OAuth)
-- Winston (Logging)
-- Joi (Validation)
-
-**Frontend:**
-- React 18
-- TypeScript
-- Vite
-- Tailwind CSS
-- React Router
-- Axios
-- date-fns
+---
 
 ## 📄 License
 
-MIT
+MIT License - See [LICENSE](LICENSE)
 
-## 👥 Author
+---
 
-Built as a production-grade email scheduling system with enterprise features.
+## 👨‍💻 Author
+
+Built with ❤️ for scalable email campaigns
+
+---
+
+**Happy Scheduling! 📧✨**
